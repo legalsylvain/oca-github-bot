@@ -1,7 +1,9 @@
 # Copyright (c) initOS GmbH 2019
 # Distributed under the MIT License (http://opensource.org/licenses/MIT).
 
-from ..commands import parse_commands
+from .. import github
+from ..commands import CommandError, parse_commands
+from ..config import OCABOT_EXTRA_DOCUMENTATION, OCABOT_USAGE
 from ..router import router
 
 
@@ -16,5 +18,17 @@ async def on_command(event, gh, *args, **kwargs):
     username = event.data["comment"]["user"]["login"]
     text = event.data["comment"]["body"]
 
-    for command in parse_commands(text):
-        command.delay(org, repo, pr, username)
+    try:
+        for command in parse_commands(text):
+            command.delay(org, repo, pr, username)
+    except CommandError as e:
+        with github.login() as gh:
+            gh_pr = gh.pull_request(org, repo, pr)
+            github.gh_call(
+                gh_pr.create_comment,
+                f"Hi @{username}. Your command failed:\n\n"
+                f"``{str(e)}``.\n\n"
+                f"{OCABOT_USAGE}\n\n"
+                f"{OCABOT_EXTRA_DOCUMENTATION}",
+            )
+        raise
