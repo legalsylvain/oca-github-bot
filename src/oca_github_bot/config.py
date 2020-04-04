@@ -87,7 +87,37 @@ MERGE_BOT_INTRO_MESSAGES = [
     "What a great day to merge this nice PR. Let's do it!",
 ]
 
-APPROVALS_REQUIRED = int(os.environ.get("APPROVALS_REQUIRED", "2"))
-MIN_PR_AGE = int(os.environ.get("MIN_PR_AGE", "5"))
+_APPROVALS_REQUIRED = int(os.environ.get("APPROVALS_REQUIRED", "2"))
+_MIN_PR_AGE = int(os.environ.get("MIN_PR_AGE", "5"))
 
 SIMPLE_INDEX_ROOT = os.environ.get("SIMPLE_INDEX_ROOT")
+
+
+LOAD_CUSTOM_SETTINGS = bool(os.environ.get("LOAD_CUSTOM_SETTINGS", "False"))
+
+
+def get_custom_config(org, repo, branch, keys):
+    res = {}
+    # we populate with default settings of oca_github_bot
+    for key in keys:
+        res[key] = eval(f"_{key}")
+
+    if not LOAD_CUSTOM_SETTINGS:
+        return res
+    # Get custom setting file
+    url = (
+        f"https://raw.githubusercontent.com/{org}/{repo}/{branch}/"
+        f"/.oca-github-bot.yml"
+    )
+    # tmp
+    url = (
+        "https://raw.githubusercontent.com/grap/"
+        "github-ocabot-test/12.0/.oca-github-bot.yml"
+    )
+
+    request = urllib.request.urlopen(url)
+    if request.getcode() == 200:
+        data = request.read()
+        for key, value in yaml.load(data, Loader=yaml.CLoader)[0].items():
+            res[key] = value
+    return res

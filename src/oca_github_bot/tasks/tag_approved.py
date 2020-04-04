@@ -4,7 +4,7 @@
 from collections import defaultdict
 
 from .. import github
-from ..config import APPROVALS_REQUIRED, switchable
+from ..config import get_custom_config, switchable
 from ..github import gh_call
 from ..queue import getLogger, task
 from .tag_ready_to_merge import LABEL_READY_TO_MERGE, tag_ready_to_merge
@@ -44,7 +44,8 @@ def tag_approved(org, repo, pr, dry_run=False):
         gh_issue = gh_call(gh_pr.issue)
         labels = [l.name for l in gh_issue.labels()]
         if (
-            len(review_users_by_state["APPROVED"]) >= APPROVALS_REQUIRED
+            len(review_users_by_state["APPROVED"]) >= get_custom_config(
+                ["APPROVALS_REQUIRED"])["APPROVALS_REQUIRED"]
             and not review_users_by_state["CHANGES_REQUESTED"]
         ):
             if LABEL_APPROVED not in labels:

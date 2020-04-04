@@ -64,3 +64,7 @@ SIMPLE_INDEX_ROOT=/app/run/simple-index
 #GEN_ADDONS_TABLE_EXTRA_ARGS=
 #GEN_ADDON_README_EXTRA_ARGS=
 #GEN_ADDON_ICON_EXTRA_ARGS=
+
+# If enabled, some settings set here can be overloaded in a
+# .oca-github-bot.yml if defined in the working repository.
+#LOAD_CUSTOM_SETTINGS=False
