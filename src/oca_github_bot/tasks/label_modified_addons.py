@@ -9,7 +9,7 @@ from ..queue import task
 from ..version_branch import is_main_branch_bot_branch
 
 
-def _label_modified_addons(gh, org, repo, pr, dry_run):
+def _label_modified_addons(gh, org, repo, pr, dry_run=False):
     gh_pr = gh.pull_request(org, repo, pr)
     target_branch = gh_pr.base.ref
     pr_branch = f"tmp-pr-{pr}"
